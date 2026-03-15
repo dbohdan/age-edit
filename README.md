@@ -73,8 +73,8 @@ Options:
   -a, --armor               write an armored age file (AGE_EDIT_ARMOR)
   -s, --autosave duration   save automatically at regular intervals (0 to
 disable, AGE_EDIT_AUTOSAVE)
-  -c, --command string      editor command (overrides the editor executable,
-AGE_EDIT_COMMAND)
+  -c, --command string      editor command with arguments (overrides the editor
+executable, AGE_EDIT_COMMAND)
       --decode string       filter command after decryption, like a decompressor
 (AGE_EDIT_DECODE)
   -e, --editor string       editor executable (AGE_EDIT_EDITOR, VISUAL, EDITOR,
@@ -88,8 +88,8 @@ default "vi")
 AGE_EDIT_MEMLOCK)
   -r, --read-only           make the temporary file read-only and discard all
 changes (AGE_EDIT_READ_ONLY)
-  -t, --temp-dir string     temporary directory prefix (AGE_EDIT_TEMP_DIR,
-default "/dev/shm/")
+  -t, --temp-dir string     base temporary directory (AGE_EDIT_TEMP_DIR, default
+"/dev/shm/")
   -V, --version             report the program version and exit
   -w, --warn string         warn if the editor exits sooner than expected
 (duration or seconds, 0 to disable, AGE_EDIT_WARN)

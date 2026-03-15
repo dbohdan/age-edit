@@ -604,7 +604,7 @@ func cli() int {
 		"command",
 		"c",
 		defaultCommand(),
-		fmt.Sprintf("editor command (overrides the editor executable, %v)", commandEnvVar),
+		fmt.Sprintf("editor command with arguments (overrides the editor executable, %v)", commandEnvVar),
 	)
 	decode := flag.String(
 		"decode",
@@ -656,7 +656,7 @@ func cli() int {
 		"temp-dir",
 		"t",
 		defaultTempDirPrefix(),
-		fmt.Sprintf("temporary directory prefix (%v)", tempDirPrefixEnvVar),
+		fmt.Sprintf("base temporary directory (%v)", tempDirPrefixEnvVar),
 	)
 	warn := flag.StringP(
 		"warn",

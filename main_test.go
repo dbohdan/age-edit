@@ -5,6 +5,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"testing"
 	"time"
 
@@ -387,6 +388,48 @@ func TestEdit(t *testing.T) {
 
 			if tt.checkFn != nil {
 				tt.checkFn(t, tempDir, encFile.Name(), initialModTime)
+			}
+		})
+	}
+}
+
+func TestParseWarn(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected time.Duration
+		wantErr  bool
+	}{
+		{"5", 5 * time.Second, false},
+		{"0", 0, false},
+		{"10s", 10 * time.Second, false},
+		{"1m", 1 * time.Minute, false},
+		{"1h30m", 90 * time.Minute, false},
+		{"invalid", 0, true},
+		{"", 0, false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			var got time.Duration
+			if tt.input != "" {
+				d, err := time.ParseDuration(tt.input)
+				if err != nil {
+					seconds, errInt := strconv.Atoi(tt.input)
+					if errInt != nil {
+						if !tt.wantErr {
+							t.Errorf("unexpected error for %q", tt.input)
+						}
+						return
+					}
+					d = time.Duration(seconds) * time.Second
+				}
+				got = d
+			}
+
+			if tt.wantErr {
+				t.Errorf("expected error for %q, but got none", tt.input)
+			} else if got != tt.expected {
+				t.Errorf("parseWarn(%q) = %v, expected %v", tt.input, got, tt.expected)
 			}
 		})
 	}

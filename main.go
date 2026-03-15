@@ -532,18 +532,8 @@ func defaultTempDirPrefix() string {
 	return prefix
 }
 
-func defaultWarn() (int, error) {
-	val := os.Getenv(warnEnvVar)
-	if val == "" {
-		return 0, nil
-	}
-
-	i, err := strconv.Atoi(val)
-	if err != nil {
-		return 0, fmt.Errorf("invalid integer value for %s: %q", warnEnvVar, val)
-	}
-
-	return i, nil
+func defaultWarn() string {
+	return os.Getenv(warnEnvVar)
 }
 
 // cli parses command-line arguments, validates configuration, and invokes the edit function.
@@ -594,12 +584,7 @@ func cli() int {
 		return exitBadUsage
 	}
 
-	defaultWarnVal, err := defaultWarn()
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "Error:", err)
-
-		return exitBadUsage
-	}
+	defaultWarnVal := defaultWarn()
 
 	flag := pflag.NewFlagSet("age-edit", pflag.ContinueOnError)
 
@@ -673,11 +658,11 @@ func cli() int {
 		defaultTempDirPrefix(),
 		fmt.Sprintf("temporary directory prefix (%v)", tempDirPrefixEnvVar),
 	)
-	warn := flag.IntP(
+	warn := flag.StringP(
 		"warn",
 		"w",
 		defaultWarnVal,
-		fmt.Sprintf("warn if the editor exits after less than a number of seconds (0 to disable, %v)", warnEnvVar),
+		fmt.Sprintf("warn if the editor exits sooner than expected (duration or seconds, 0 to disable, %v)", warnEnvVar),
 	)
 
 	flag.Usage = func() {
@@ -806,7 +791,25 @@ An identities file and an encrypted file, given in the arguments or the environm
 		cfg.encodeArgs = args[1:]
 	}
 
-	start := int(time.Now().Unix())
+	var warnDuration time.Duration
+
+	if *warn != "" {
+		d, err := time.ParseDuration(*warn)
+		if err != nil {
+			seconds, errInt := strconv.Atoi(*warn)
+			if errInt != nil {
+				fmt.Fprintln(os.Stderr, "Error: invalid duration for --warn:", *warn)
+
+				return exitBadUsage
+			}
+
+			d = time.Duration(seconds) * time.Second
+		}
+
+		warnDuration = d
+	}
+
+	start := time.Now()
 
 	tempDir, err := edit(cfg)
 	if tempDir != "" {
@@ -816,11 +819,11 @@ An identities file and an encrypted file, given in the arguments or the environm
 		defer os.RemoveAll(tempDir)
 	}
 
-	if *warn > 0 && int(time.Now().Unix())-start <= *warn {
+	if warnDuration > 0 && time.Since(start) <= warnDuration {
 		fmt.Fprintf(
 			os.Stderr,
-			"Warning: editor exited after less than %d second(s)\n",
-			*warn,
+			"Warning: editor exited after less than %v\n",
+			warnDuration,
 		)
 	}
 

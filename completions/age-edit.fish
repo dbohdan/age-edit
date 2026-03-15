@@ -1,4 +1,5 @@
 complete -c age-edit -s a -l armor -d 'Write armored age file'
+complete -c age-edit -s s -l autosave -d 'Save automatically at regular intervals' -r
 complete -c age-edit -s c -l command -d 'Editor command' -r
 complete -c age-edit -l decode -d 'Filter command after decryption' -r
 complete -c age-edit -s e -l editor -d 'Editor executable' -r

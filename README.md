@@ -70,26 +70,28 @@ Arguments:
   encrypted               encrypted file path (AGE_EDIT_ENCRYPTED_FILE)
 
 Options:
-  -a, --armor             write an armored age file (AGE_EDIT_ARMOR)
-  -c, --command string    editor command (overrides the editor executable,
+  -a, --armor               write an armored age file (AGE_EDIT_ARMOR)
+  -s, --autosave duration   save automatically at regular intervals (0 to
+disable, AGE_EDIT_AUTOSAVE)
+  -c, --command string      editor command (overrides the editor executable,
 AGE_EDIT_COMMAND)
-      --decode string     filter command after decryption, like a decompressor
+      --decode string       filter command after decryption, like a decompressor
 (AGE_EDIT_DECODE)
-  -e, --editor string     editor executable (AGE_EDIT_EDITOR, VISUAL, EDITOR,
+  -e, --editor string       editor executable (AGE_EDIT_EDITOR, VISUAL, EDITOR,
 default "vi")
-      --encode string     filter command before encryption, like a compressor
+      --encode string       filter command before encryption, like a compressor
 (AGE_EDIT_ENCODE)
-  -f, --force             force re-encryption even if the file hasn't changed
+  -f, --force               force re-encryption even if the file hasn't changed
 (AGE_EDIT_FORCE)
-  -L, --no-lock           do not lock encrypted file (negated AGE_EDIT_LOCK)
-  -M, --no-memlock        disable mlockall(2) that prevents swapping (negated
+  -L, --no-lock             do not lock encrypted file (negated AGE_EDIT_LOCK)
+  -M, --no-memlock          disable mlockall(2) that prevents swapping (negated
 AGE_EDIT_MEMLOCK)
-  -r, --read-only         make the temporary file read-only and discard all
+  -r, --read-only           make the temporary file read-only and discard all
 changes (AGE_EDIT_READ_ONLY)
-  -t, --temp-dir string   temporary directory prefix (AGE_EDIT_TEMP_DIR, default
-"/dev/shm/")
-  -V, --version           report the program version and exit
-  -w, --warn int          warn if the editor exits after less than a number of
+  -t, --temp-dir string     temporary directory prefix (AGE_EDIT_TEMP_DIR,
+default "/dev/shm/")
+  -V, --version             report the program version and exit
+  -w, --warn int            warn if the editor exits after less than a number of
 seconds (0 to disable, AGE_EDIT_WARN)
 
 An identities file and an encrypted file, given in the arguments or the
@@ -114,6 +116,8 @@ This can prevent data loss from multiple copies of age-edit editing the same enc
 
 ## Saving without exiting
 
+### Saving on signal
+
 On POSIX systems (BSD, Linux, macOS), you can send the `SIGUSR1` signal to the age-edit process and save changes to the encrypted file without closing the editor.
 This is useful for long editing sessions.
 
@@ -122,6 +126,22 @@ pkill -USR1 age-edit
 ```
 
 If saving fails, age-edit will ring the [system bell](https://en.wikipedia.org/wiki/Bell_character) and print an error message to standard error.
+
+### Autosave
+
+You can have age-edit automatically save changes at regular intervals without closing the editor.
+Use the `-s`/`--autosave` option with a [Go duration string](https://pkg.go.dev/time#ParseDuration) like `30s` (30 seconds), `5m` (5 minutes), or `1h` (1 hour).
+
+```shell
+age-edit --autosave 2m identities.txt secrets.txt.age
+```
+
+If the duration is invalid or negative, the program will exit with an error.
+
+On POSIX systems, autosave works concurrently with saving on `SIGUSR1`.
+They wait for each other.
+
+If an autosave fails (for example, the disk is full), age-edit will ring the system bell and print an error message to standard error.
 
 ## Using age-edit with pago
 

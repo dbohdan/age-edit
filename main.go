@@ -41,6 +41,7 @@ const (
 	tempDirPerm      = 0o700
 
 	armorEnvVar          = "AGE_EDIT_ARMOR"
+	autosaveEnvVar       = "AGE_EDIT_AUTOSAVE"
 	commandEnvVar        = "AGE_EDIT_COMMAND"
 	decodeEnvVar         = "AGE_EDIT_DECODE"
 	encodeEnvVar         = "AGE_EDIT_ENCODE"
@@ -53,7 +54,7 @@ const (
 	tempDirPrefixEnvVar  = "AGE_EDIT_TEMP_DIR"
 	warnEnvVar           = "AGE_EDIT_WARN"
 
-	version = "0.15.0"
+	version = "0.16.0"
 )
 
 var (
@@ -61,9 +62,10 @@ var (
 )
 
 type config struct {
-	idsPath       string
-	encPath       string
-	tempDirPrefix string
+	autosaveInterval time.Duration
+	idsPath          string
+	encPath          string
+	tempDirPrefix    string
 
 	armor    bool
 	force    bool
@@ -391,6 +393,9 @@ func edit(cfg config) (string, error) {
 	if !cfg.readOnly {
 		stop := handleSignals(saveChanges)
 		defer stop()
+
+		stopAutosave := handleAutosave(cfg.autosaveInterval, saveChanges)
+		defer stopAutosave()
 	}
 
 	fullArgs := append([]string{}, cfg.args...)
@@ -463,6 +468,20 @@ func defaultBool(envVar string, fallback bool) (bool, error) {
 
 func defaultArmor() (bool, error) {
 	return defaultBool(armorEnvVar, false)
+}
+
+func defaultAutosave() (time.Duration, error) {
+	val := os.Getenv(autosaveEnvVar)
+	if val == "" {
+		return 0, nil
+	}
+
+	d, err := time.ParseDuration(val)
+	if err != nil {
+		return 0, fmt.Errorf("invalid duration value for %s: %q", autosaveEnvVar, val)
+	}
+
+	return d, nil
 }
 
 func defaultCommand() string {
@@ -540,6 +559,13 @@ func cli() int {
 		return exitBadUsage
 	}
 
+	defaultAutosaveVal, err := defaultAutosave()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Error:", err)
+
+		return exitBadUsage
+	}
+
 	defaultForceVal, err := defaultForce()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Error:", err)
@@ -582,6 +608,12 @@ func cli() int {
 		"a",
 		defaultArmorVal,
 		fmt.Sprintf("write an armored age file (%v)", armorEnvVar),
+	)
+	autosave := flag.DurationP(
+		"autosave",
+		"s",
+		defaultAutosaveVal,
+		fmt.Sprintf("save automatically at regular intervals (0 to disable) (%v)", autosaveEnvVar),
 	)
 	command := flag.StringP(
 		"command",
@@ -697,9 +729,10 @@ An identities file and an encrypted file, given in the arguments or the environm
 	}
 
 	cfg := config{
-		idsPath:       identitiesFileDefault,
-		encPath:       encryptedFileDefault,
-		tempDirPrefix: *tempDirPrefix,
+		autosaveInterval: *autosave,
+		idsPath:          identitiesFileDefault,
+		encPath:          encryptedFileDefault,
+		tempDirPrefix:    *tempDirPrefix,
 
 		armor:    *armored,
 		force:    *force,

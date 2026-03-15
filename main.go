@@ -34,7 +34,7 @@ const (
 
 	cliMaxArgs = 2
 
-	defaultTempDirPrefixLinux = "/dev/shm/"
+	defaultTempDirBaseLinux = "/dev/shm/"
 
 	filePerm         = 0o600
 	fileReadOnlyPerm = 0o400
@@ -51,7 +51,7 @@ const (
 	lockEnvVar           = "AGE_EDIT_LOCK"
 	memlockEnvVar        = "AGE_EDIT_MEMLOCK"
 	readOnlyEnvVar       = "AGE_EDIT_READ_ONLY"
-	tempDirPrefixEnvVar  = "AGE_EDIT_TEMP_DIR"
+	tempDirBaseEnvVar    = "AGE_EDIT_TEMP_DIR"
 	warnEnvVar           = "AGE_EDIT_WARN"
 
 	version = "0.16.0"
@@ -65,7 +65,7 @@ type config struct {
 	autosaveInterval time.Duration
 	idsPath          string
 	encPath          string
-	tempDirPrefix    string
+	tempDirBase      string
 
 	armor    bool
 	force    bool
@@ -323,7 +323,7 @@ func edit(cfg config) (string, error) {
 
 	userDir := fmt.Sprintf("age-edit-%s@%s", currentUser.Username, hostname)
 	subdir := randomID()
-	tempDir := filepath.Join(cfg.tempDirPrefix, userDir, subdir)
+	tempDir := filepath.Join(cfg.tempDirBase, userDir, subdir)
 
 	err = os.MkdirAll(tempDir, tempDirPerm)
 	if err != nil {
@@ -523,13 +523,13 @@ func defaultReadOnly() (bool, error) {
 	return defaultBool(readOnlyEnvVar, false)
 }
 
-func defaultTempDirPrefix() string {
-	prefix := os.Getenv(tempDirPrefixEnvVar)
-	if prefix == "" {
-		prefix = defaultTempDirPrefixLinux
+func defaultTempDirBase() string {
+	base := os.Getenv(tempDirBaseEnvVar)
+	if base == "" {
+		base = defaultTempDirBaseLinux
 	}
 
-	return prefix
+	return base
 }
 
 func defaultWarn() string {
@@ -652,11 +652,11 @@ func cli() int {
 		false,
 		"report the program version and exit",
 	)
-	tempDirPrefix := flag.StringP(
+	tempDirBase := flag.StringP(
 		"temp-dir",
 		"t",
-		defaultTempDirPrefix(),
-		fmt.Sprintf("base temporary directory (%v)", tempDirPrefixEnvVar),
+		defaultTempDirBase(),
+		fmt.Sprintf("base temporary directory (%v)", tempDirBaseEnvVar),
 	)
 	warn := flag.StringP(
 		"warn",
@@ -717,7 +717,7 @@ An identities file and an encrypted file, given in the arguments or the environm
 		autosaveInterval: *autosave,
 		idsPath:          identitiesFileDefault,
 		encPath:          encryptedFileDefault,
-		tempDirPrefix:    *tempDirPrefix,
+		tempDirBase:      *tempDirBase,
 
 		armor:    *armored,
 		force:    *force,

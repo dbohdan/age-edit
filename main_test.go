@@ -359,7 +359,7 @@ func TestEdit(t *testing.T) {
 			initialModTime := initialEncFileInfo.ModTime()
 
 			// Create a temporary directory.
-			tempDirPrefix := t.TempDir()
+			tempDirBase := t.TempDir()
 
 			// Call edit.
 			editArgs := []string{}
@@ -368,9 +368,9 @@ func TestEdit(t *testing.T) {
 			}
 
 			tempDir, err := edit(config{
-				idsPath:       idFile.Name(),
-				encPath:       encFile.Name(),
-				tempDirPrefix: tempDirPrefix,
+				idsPath:     idFile.Name(),
+				encPath:     encFile.Name(),
+				tempDirBase: tempDirBase,
 
 				armor:    false,
 				lock:     tt.lock,

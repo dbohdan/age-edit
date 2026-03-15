@@ -89,9 +89,9 @@ func TestFileLocking(t *testing.T) {
 			done := make(chan error, 2)
 			editEncFile := func(lock, readOnly bool, arg ...string) {
 				_, err = edit(config{
-					idsPath:       idFilePath,
-					encPath:       encFilePath,
-					tempDirPrefix: tempDir,
+					idsPath:     idFilePath,
+					encPath:     encFilePath,
+					tempDirBase: tempDir,
 
 					armor:    true,
 					lock:     lock,

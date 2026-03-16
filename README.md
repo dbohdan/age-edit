@@ -16,8 +16,8 @@ When you run age-edit with an identities (private keys) file and an encrypted fi
    (The default editor is determined by the environment variables `AGE_EDIT_EDITOR`, [`VISUAL`, and `EDITOR`](https://unix.stackexchange.com/questions/4859/visual-vs-editor-what-s-the-difference) with `vi` as a fallback, but it can be any editor, e.g., LibreOffice.)
 3. Wait for the editor to exit.
 4. Check if the temporary file has been modified by comparing its checksum before and after editing.
-   If the file has been modified, proceed, else skip to the next step.
-   Encrypt the contents of the temporary file to the encrypted file using public keys derived from the private keys.
+   If the file has been modified (or if the `--force` option is used), proceed, else skip to the next step.
+   Encrypt the contents of the temporary file to the encrypted file using recipients (public keys) derived from the identities file.
    Optionally, encode before encryption by passing the data through a user-supplied command, like a compressor.
    The encrypted file can be "armored": stored as ASCII text in the [PEM](https://en.wikipedia.org/wiki/Privacy-Enhanced_Mail) format.
 5. Finally, delete the temporary file.
@@ -116,9 +116,10 @@ This can prevent data loss from multiple copies of age-edit editing the same enc
 
 ## Saving without exiting
 
-### Saving on signal
+### Save on signal
 
-On POSIX systems (BSD, Linux, macOS), you can send the `SIGUSR1` signal to the age-edit process and save changes to the encrypted file without closing the editor.
+On POSIX systems (BSD, Linux, macOS), you can send the `SIGUSR1` signal to the age-edit process to trigger a save to the encrypted file without closing the editor.
+Like saving on exit, this only performs re-encryption if the file has been modified.
 This is useful for long editing sessions.
 
 ```shell

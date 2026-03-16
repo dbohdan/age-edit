@@ -66,8 +66,8 @@ An [independent Nix package](https://github.com/dot-file/age-edit) is available 
 Usage: age-edit [options] [[identities] encrypted]
 
 Arguments:
-  identities              identities file path (AGE_EDIT_IDENTITIES_FILE)
-  encrypted               encrypted file path (AGE_EDIT_ENCRYPTED_FILE)
+  identities                identities file path (AGE_EDIT_IDENTITIES_FILE)
+  encrypted                 encrypted file path (AGE_EDIT_ENCRYPTED_FILE)
 
 Options:
   -a, --armor               write an armored age file (AGE_EDIT_ARMOR)

@@ -670,8 +670,8 @@ func cli() int {
 			`Usage: %s [options] [[identities] encrypted]
 
 Arguments:
-  identities              identities file path (%s%s)
-  encrypted               encrypted file path (%s%s)
+  identities                identities file path (%s%s)
+  encrypted                 encrypted file path (%s%s)
 
 Options:
 %s

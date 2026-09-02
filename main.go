@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"os/user"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 	"sync"
@@ -17,7 +18,7 @@ import (
 
 	"filippo.io/age"
 	"filippo.io/age/armor"
-	"github.com/anmitsu/go-shlex"
+	"dbohdan.com/age-edit/internal/shlex"
 	"github.com/carlmjohnson/crockford"
 	"github.com/gofrs/flock"
 	"github.com/spf13/pflag"
@@ -491,6 +492,16 @@ func defaultEncode() string {
 	return os.Getenv(encodeEnvVar)
 }
 
+// splitCommand splits a command line like a Unix shell.  On Windows the
+// backslash is not an escape character, so backslash-separated paths work.
+func splitCommand(s string) ([]string, error) {
+	if runtime.GOOS == "windows" {
+		return shlex.SplitWindows(s)
+	}
+
+	return shlex.Split(s, true)
+}
+
 func defaultEditor() string {
 	for _, envVar := range editorEnvVars {
 		value := os.Getenv(envVar)
@@ -747,7 +758,7 @@ An identities file and an encrypted file, given in the arguments or the environm
 		}
 	}
 
-	args, err := shlex.Split(*editor, true)
+	args, err := splitCommand(*editor)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Error: failed to split editor command")
 		os.Exit(exitBadUsage)
@@ -757,7 +768,7 @@ An identities file and an encrypted file, given in the arguments or the environm
 	cfg.args = args[1:]
 
 	if *decode != "" {
-		args, err := shlex.Split(*decode, true)
+		args, err := splitCommand(*decode)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, "Error: failed to split decode command")
 			os.Exit(exitBadUsage)
@@ -768,7 +779,7 @@ An identities file and an encrypted file, given in the arguments or the environm
 	}
 
 	if *encode != "" {
-		args, err := shlex.Split(*encode, true)
+		args, err := splitCommand(*encode)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, "Error: failed to split encode command")
 			os.Exit(exitBadUsage)

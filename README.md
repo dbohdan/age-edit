@@ -71,8 +71,8 @@ Arguments:
 
 Options:
   -a, --armor               write an armored age file (AGE_EDIT_ARMOR)
-  -s, --autosave duration   save automatically at regular intervals (0 to
-disable, AGE_EDIT_AUTOSAVE, default 1m0s)
+  -s, --autosave duration   save automatically at regular intervals
+(AGE_EDIT_AUTOSAVE, duration, 0 to disable, default 1m0s)
       --decode string       filter command after decryption, like a decompressor
 (AGE_EDIT_DECODE)
   -e, --editor string       editor command (AGE_EDIT_EDITOR, VISUAL, EDITOR,
@@ -90,7 +90,7 @@ changes (AGE_EDIT_READ_ONLY)
 "/dev/shm/")
   -V, --version             report the program version and exit
   -w, --warn string         warn if the editor exits sooner than expected
-(duration or seconds, 0 to disable, AGE_EDIT_WARN)
+(AGE_EDIT_WARN, duration or seconds, 0 to disable)
 
 An identities file and an encrypted file, given in the arguments or the
 environment variables, are required. Default values are read from environment

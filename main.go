@@ -604,7 +604,7 @@ func cli() int {
 		"autosave",
 		"s",
 		defaultAutosaveVal,
-		fmt.Sprintf("save automatically at regular intervals (0 to disable) (%v)", autosaveEnvVar),
+		fmt.Sprintf("save automatically at regular intervals (%v, duration, 0 to disable)", autosaveEnvVar),
 	)
 	decode := flag.String(
 		"decode",
@@ -662,7 +662,7 @@ func cli() int {
 		"warn",
 		"w",
 		defaultWarnVal,
-		fmt.Sprintf("warn if the editor exits sooner than expected (duration or seconds, 0 to disable, %v)", warnEnvVar),
+		fmt.Sprintf("warn if the editor exits sooner than expected (%v, duration or seconds, 0 to disable)", warnEnvVar),
 	)
 
 	flag.Usage = func() {

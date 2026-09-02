@@ -214,4 +214,6 @@ age-edit doesn't work with multi-document editors.
 
 ## License
 
-MIT.
+[MIT](LICENSE).
+
+age-edit includes a fork of the [go-shlex](https://github.com/anmitsu/go-shlex) library by anmitsu, which is also licensed under the [MIT License](internal/shlex/LICENSE).

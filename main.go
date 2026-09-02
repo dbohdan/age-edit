@@ -42,7 +42,6 @@ const (
 
 	armorEnvVar          = "AGE_EDIT_ARMOR"
 	autosaveEnvVar       = "AGE_EDIT_AUTOSAVE"
-	commandEnvVar        = "AGE_EDIT_COMMAND"
 	decodeEnvVar         = "AGE_EDIT_DECODE"
 	encodeEnvVar         = "AGE_EDIT_ENCODE"
 	encryptedFileEnvVar  = "AGE_EDIT_ENCRYPTED_FILE"
@@ -484,10 +483,6 @@ func defaultAutosave() (time.Duration, error) {
 	return d, nil
 }
 
-func defaultCommand() string {
-	return os.Getenv(commandEnvVar)
-}
-
 func defaultDecode() string {
 	return os.Getenv(decodeEnvVar)
 }
@@ -600,12 +595,6 @@ func cli() int {
 		defaultAutosaveVal,
 		fmt.Sprintf("save automatically at regular intervals (0 to disable) (%v)", autosaveEnvVar),
 	)
-	command := flag.StringP(
-		"command",
-		"c",
-		defaultCommand(),
-		fmt.Sprintf("editor command with arguments (overrides the editor executable, %v)", commandEnvVar),
-	)
 	decode := flag.String(
 		"decode",
 		defaultDecode(),
@@ -615,7 +604,7 @@ func cli() int {
 		"editor",
 		"e",
 		defaultEditor(),
-		fmt.Sprintf("editor executable (%v)", strings.Join(editorEnvVars, ", ")),
+		fmt.Sprintf("editor command (%v)", strings.Join(editorEnvVars, ", ")),
 	)
 	encode := flag.String(
 		"encode",
@@ -724,7 +713,7 @@ An identities file and an encrypted file, given in the arguments or the environm
 		lock:     !*noLock,
 		readOnly: *readOnly,
 
-		command: *editor,
+		command: "",
 		args:    []string{},
 
 		decodeCmd:  "",
@@ -758,16 +747,14 @@ An identities file and an encrypted file, given in the arguments or the environm
 		}
 	}
 
-	if *command != "" {
-		args, err := shlex.Split(*command, true)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, "Error: failed to split command")
-			os.Exit(exitBadUsage)
-		}
-
-		cfg.command = args[0]
-		cfg.args = args[1:]
+	args, err := shlex.Split(*editor, true)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Error: failed to split editor command")
+		os.Exit(exitBadUsage)
 	}
+
+	cfg.command = args[0]
+	cfg.args = args[1:]
 
 	if *decode != "" {
 		args, err := shlex.Split(*decode, true)

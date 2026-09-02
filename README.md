@@ -72,12 +72,10 @@ Arguments:
 Options:
   -a, --armor               write an armored age file (AGE_EDIT_ARMOR)
   -s, --autosave duration   save automatically at regular intervals (0 to
-disable, AGE_EDIT_AUTOSAVE)
-  -c, --command string      editor command with arguments (overrides the editor
-executable, AGE_EDIT_COMMAND)
+disable, AGE_EDIT_AUTOSAVE, default 1m0s)
       --decode string       filter command after decryption, like a decompressor
 (AGE_EDIT_DECODE)
-  -e, --editor string       editor executable (AGE_EDIT_EDITOR, VISUAL, EDITOR,
+  -e, --editor string       editor command (AGE_EDIT_EDITOR, VISUAL, EDITOR,
 default "vi")
       --encode string       filter command before encryption, like a compressor
 (AGE_EDIT_ENCODE)
@@ -101,11 +99,8 @@ true, false, yes, no.
 ```
 <!-- END USAGE -->
 
-The `--editor` option can only specify the editor command to run; it doesn't allow arguments.
-Use the `--command` option to specify a command with arguments.
-
-The command string is split into arguments according to the rules of POSIX shell using [anmitsu/go-shlex](https://github.com/anmitsu/go-shlex).
-For example, `age-edit --command 'foo --bar "baz 5"'` runs `foo --bar 'baz 5' /path/to/temp-file` to edit the temporary file.
+The editor string is split into arguments according to the rules of POSIX shell using [anmitsu/go-shlex](https://github.com/anmitsu/go-shlex).
+For example, `age-edit --editor 'foo --bar "baz 5"'` runs `foo --bar 'baz 5' /path/to/temp-file` to edit the temporary file.
 
 ## File locking
 
@@ -168,7 +163,7 @@ You can use the `--decode` and `--encode` options to apply transformations to th
 
 The `--decode` option specifies a command to run after decryption to decode or decompress the file.
 The `--encode` option specifies a command to run before encryption to encode or compress the file.
-Like `--command`, `--decode` and `--encode` are split into arguments according to the rules of POSIX shell.
+Like `--editor`, `--decode` and `--encode` are split into arguments according to the rules of POSIX shell.
 
 For example, to use [Zstandard](https://en.wikipedia.org/wiki/Zstd) compression:
 

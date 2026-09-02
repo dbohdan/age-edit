@@ -53,7 +53,7 @@ const (
 	tempDirBaseEnvVar    = "AGE_EDIT_TEMP_DIR"
 	warnEnvVar           = "AGE_EDIT_WARN"
 
-	version = "0.16.0"
+	version = "0.17.0"
 )
 
 var (
